@@ -1,0 +1,15 @@
+{
+  "name": "Renderer",
+  "frameworks": "arduino",
+  "platforms": [
+    "espressif8266"
+  ],
+  "export": {
+    "include": [
+      "include"
+    ]
+  },
+  "libraryDependencies": [
+    "hal"
+  ]
+}
