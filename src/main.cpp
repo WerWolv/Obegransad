@@ -13,6 +13,7 @@
 #include <screens/screen_rain.hpp>
 
 #include <config.hpp>
+#include <web_server.hpp>
 
 static void configureWiFi() {
     WiFi.begin(obegransad::config::WiFiSSID, obegransad::config::WiFiPassword);
@@ -123,6 +124,8 @@ void setup() {
     configureWiFi();
     configureOTA();
     configureRTC();
+
+    obegransad::web::configure();
 }
 
 
@@ -198,4 +201,5 @@ void loop() {
     hal::Screen::update();
     hal::Button::update();
     ArduinoOTA.handle();
+    obegransad::web::process();
 }
