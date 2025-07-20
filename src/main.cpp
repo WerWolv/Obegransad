@@ -42,13 +42,16 @@ static void configureWiFi() {
     configTime("CET-1CEST,M3.5.0/2,M10.5.0/3", "0.ch.pool.ntp.org", "0.europe.pool.ntp.org", "time.nist.gov");
 }
 
+static bool s_otaInProgress = false;
 static void configureOTA() {
     ArduinoOTA.onStart([]() {
-         Serial.println("Start\n");
+        Serial.println("Start\n");
+        s_otaInProgress = true;
     });
 
     ArduinoOTA.onEnd([]() {
         Serial.println("End\n");
+        s_otaInProgress = false;
     });
 
     ArduinoOTA.onProgress([](std::uint32_t progress, std::uint32_t total) {
@@ -58,11 +61,13 @@ static void configureOTA() {
         rndr::Renderer::drawString(0, 0, "UP", rndr::font::DefaultFont);
 
         float percent = static_cast<float>(progress) / total;
-        for (std::uint8_t i = 0; i < 16; i++) {
-            if (i < percent * 16)
-                hal::Screen::setPixel(i, 15, 0x20);
-            else
-                hal::Screen::setPixel(i, 15, 0x00);
+        if (percent * 16 >= 1) {
+            for (std::uint8_t i = 0; i < 16; i++) {
+                if (i < percent * 16)
+                    hal::Screen::setPixel(i, 15, 0xFF);
+                else
+                    hal::Screen::setPixel(i, 15, 0x00);
+            }
         }
 
         hal::Screen::update();
@@ -144,7 +149,7 @@ void loop() {
     static std::uint32_t lastSwitchTime = 0;
     static std::uint32_t lastUpdateTime = 0;
 
-    {
+    if (!s_otaInProgress) {
         const auto currentTime = millis();
         auto currentScreen = Screens[currentScreenIndex];
         if (currentScreen == nullptr) {
